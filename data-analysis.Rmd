@@ -1,0 +1,576 @@
+---
+title: "Analysis of Interdependent Privacy"
+output: html_notebook
+---
+
+Importing the dataset.
+
+```{r warning=FALSE}
+library(tidyverse)
+data <- read_csv('data_24_11_28.csv', show_col_types = FALSE)
+head(data)
+```
+
+Cleaning the dataset, and removing participants who failed to pass the 
+attention checks. Left with 32 participants.
+```{r warning=FALSE}
+my_data <- data[-1, ]
+my_data <- data[-1, ]
+
+my_data <- my_data %>% filter(
+  Finished == TRUE, 
+  consent == "I agree to take part in the study.",
+  age > 17,
+  likertscale_help_6 == 2,
+  attentioncheck_2 == 7
+  )
+
+common_cols <- c(
+    'ResponseId',
+    'Duration (in seconds)',
+    'phoneos',
+    'thomashimself_1',
+    'thomashimself_2',
+    'thomashimself_3',
+    'thomasfriend_1',
+    'thomasfriend_2',
+    'thomasfriend_3',
+    'reponsibility_1',
+    'reponsibility_2',
+    'not_scenario_1',
+    'not_scenario_2',
+    'not_scenario_3',
+    'not_scenario_4',
+    'not_scenario_5',
+    'not_scenario_6',
+    'not_scenario_7',
+    'not_scenario_8',
+    'accesstoall',
+    'apps_number',
+    'photos_number',
+    'photos_approx',
+    'contact_number',
+    'contacts_approx',
+    'familyevent_number',
+    'workevent_number',
+    'likertscale_help_1',
+    'likertscale_help_2',
+    'likertscale_help_3',
+    'likertscale_help_4',
+    'likertscale_help_5',
+    'likertscale_help_7',
+    'likertscale_help_8',
+    'likertscale_help_9',
+    'likertscale_help_10',
+    'personalinformation_1',
+    'personalinformation_2',
+    'personalinformation_3',
+    'personalinformation_4',
+    'friendinformation_1',
+    'friendinformation_2',
+    'friendinformation_3',
+    'friendinformation_4'
+)
+
+survey_data <- my_data %>% select(
+  c(mc1_photosperson,
+    mc2_photosperson,
+    mc1_photosnon,
+    mc2_photosnon,
+    mc1_contactspersons,
+    mc2_contactsperson,
+    mc1_contactnonperson,
+    mc2_contactnonperson,
+    mc1_calendarpersons,
+    mc2_calendarperson,
+    mc1_calendarnon,
+    mc2_calendarnon,
+    filesystempersonchec,
+    filesystempersonperm,
+    qnonpersonfilehave,
+    qnonpersonfileperm,
+    photo_option_1,
+    photo_option_2,
+    photo_option_flip_1,
+    contact_option_1,
+    contact_option_2,
+    contact_option_flip_1,
+    calendar_option_1,
+    calendar_option_2,
+    calendar_option_flip_1,
+    file_option_1,
+    file_option_2,
+    file_option_flipped_1,
+    photo_paid,
+    contact_paid,
+    calendar_paid,
+    file_paid,
+    ),
+  common_cols
+)
+
+dem_data <- my_data %>% select(
+  c(gender,
+    ethnicity,
+    education,
+    education_9_TEXT,
+    income,
+    usyears,
+    yob_1,
+    fieldofstudy,
+    relationshipstatus,
+    children,
+    commitmentcheck1,
+    commitmentcheck2,
+    feedback1,
+    feedback2,
+    feedback4,
+    feedback5,
+    feedback6,
+    feedback7,)
+)
+
+dim(survey_data)
+dim(dem_data)
+```
+
+Scenario 1 - Photos Persons (5, 4 (correct) participants)
+```{r warning=FALSE}
+ph_persons <- survey_data %>% select(
+  c(mc1_photosperson,
+    mc2_photosperson,
+    photo_option_1,
+    photo_option_2,
+    photo_option_flip_1,
+    photo_paid
+    ),
+  common_cols
+) %>% filter(mc1_photosperson == "Mainly photos from family/friends/other people",
+             mc2_photosperson == "Access to Photos")
+
+dim(ph_persons)
+```
+
+Scenario 2 - Photos Non-Persons (5 participants)
+```{r warning=FALSE}
+ph_non_persons <- survey_data %>% select(
+  c(mc1_photosnon,
+    mc2_photosnon,
+    photo_option_1,
+    photo_option_2,
+    photo_option_flip_1,
+    photo_paid
+    ),
+  common_cols
+) %>% filter(mc1_photosnon == "Mainly photos from landscapes, animals and cities",
+             mc2_photosnon == "Access to Photos")
+
+dim(ph_non_persons)
+```
+
+Scenario 3 - Contacts Persons (3 participants)
+```{r warning=FALSE}
+cn_persons <- survey_data %>% select(
+  c(mc1_contactspersons,
+    mc2_contactsperson,
+    contact_option_1,
+    contact_option_2,
+    contact_option_flip_1,
+    contact_paid
+    ),
+  common_cols
+) %>% filter(mc1_contactspersons == "Mainly family and friends",
+             mc2_contactsperson == "Access to Contacts")
+
+dim(cn_persons)
+```
+
+Scenario 4 - Contacts Non-Persons (3, 1 (Correct) participants)
+```{r warning=FALSE}
+cn_non_persons <- survey_data %>% select(
+  c(mc1_contactnonperson,
+    mc2_contactnonperson,
+    contact_option_1,
+    contact_option_2,
+    contact_option_flip_1,
+    contact_paid
+    ),
+  common_cols
+) %>% filter(mc1_contactnonperson == "Mainly companies and institutions",
+             mc2_contactnonperson == "Access to Contacts")
+
+dim(cn_non_persons)
+```
+
+Scenario 5 - Calendar Persons (5 participants)
+```{r warning=FALSE}
+cl_persons <- survey_data %>% select(
+  c(mc1_calendarpersons,
+    mc2_calendarperson,
+    calendar_option_1,
+    calendar_option_2,
+    calendar_option_flip_1,
+    calendar_paid
+    ),
+  common_cols
+) %>% filter(mc1_calendarpersons == "Mainly listings of events (birthdays, parties, holidays, etc.)",
+             mc2_calendarperson == "Access to Calendar")
+
+dim(cl_persons)
+```
+
+Scenario 6 - Calendar Non-Persons (4, 3 (Correct) participants)
+```{r warning=FALSE}
+cl_non_persons <- survey_data %>% select(
+  c(mc1_calendarnon,
+    mc2_calendarnon,
+    calendar_option_1,
+    calendar_option_2,
+    calendar_option_flip_1,
+    calendar_paid
+    ),
+  common_cols
+) %>% filter(mc1_calendarnon == "Mainly listings of lectures",
+             mc2_calendarnon == "Access to Calendar")
+
+dim(cl_non_persons)
+```
+
+Scenario 7 - File System Persons (3, 2 (Correct) participants)
+```{r warning=FALSE}
+file_persons <- survey_data %>% select(
+  c(filesystempersonchec,
+    filesystempersonperm,
+    file_option_1,
+    file_option_2,
+    file_option_flipped_1,
+    file_paid
+    ),
+  common_cols
+) %>% filter(filesystempersonchec == "Mainly files from family, friends, and others",
+             filesystempersonperm == "Access to the File System")
+
+dim(file_persons)
+```
+
+Scenario 8 - File System Non-Persons (4, 3 (Correct) participants)
+```{r warning=FALSE}
+file_non_persons <- survey_data %>% select(
+  c(qnonpersonfilehave,
+    qnonpersonfileperm,
+    file_option_1,
+    file_option_2,
+    file_option_flipped_1,
+    file_paid
+    ),
+  common_cols
+) %>% filter(qnonpersonfilehave == "Mainly files from lectures notes, landscape images, etc.",
+             qnonpersonfileperm == "Access to the File System")
+
+dim(file_non_persons)
+```
+
+```{r warning=FALSE}
+library(ggplot2)
+
+violin_himself <- data.frame(
+  name = c(rep("Calendar - Persons", length(cl_persons$thomashimself_1)),
+           rep("Calendar - Non-Persons", length(cl_non_persons$thomashimself_1)),
+           rep("Contacts - Persons", length(cn_persons$thomashimself_1)),
+           rep("Photos - Persons", length(ph_persons$thomashimself_1)),
+           rep("Photos - Non-Persons", length(ph_non_persons$thomashimself_1)),
+           rep("Files - Persons", length(file_persons$thomashimself_1)),
+           rep("Files - Non-Persons", length(file_non_persons$thomashimself_1))),
+  value = as.integer(c(cl_persons$thomashimself_1, cl_non_persons$thomashimself_1,
+                       cn_persons$thomashimself_1,
+                       ph_persons$thomashimself_1, ph_non_persons$thomashimself_1,
+                       file_persons$thomashimself_1, file_non_persons$thomashimself_1))
+)
+
+ggplot(violin_himself, aes(x=name, y=value, fill=name)) +
+  theme_classic() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x=element_blank()) +
+  ylab("Concern for Thomas' Privacy") +
+  ylim(1, 5) +
+  geom_violin(show.legend = F)
+  # + geom_boxplot(width = 0.05, alpha = 0.5, show.legend = FALSE)
+```
+
+
+```{r warning=FALSE}
+library(ggplot2)
+
+violin_friends <- data.frame(
+  name = c(rep("Calendar - Persons", length(cl_persons$thomasfriend_1)),
+           rep("Calendar - Non-Persons", length(cl_non_persons$thomasfriend_1)),
+           rep("Contacts - Persons", length(cn_persons$thomasfriend_1)),
+           rep("Photos - Persons", length(ph_persons$thomasfriend_1)),
+           rep("Photos - Non-Persons", length(ph_non_persons$thomasfriend_1)),
+           rep("Files - Persons", length(file_persons$thomasfriend_1)),
+           rep("Files - Non-Persons", length(file_non_persons$thomasfriend_1))),
+  value = as.integer(c(cl_persons$thomasfriend_1, cl_non_persons$thomasfriend_1,
+                       cn_persons$thomasfriend_1,
+                       ph_persons$thomasfriend_1, ph_non_persons$thomasfriend_1,
+                       file_persons$thomasfriend_1, file_non_persons$thomasfriend_1))
+)
+
+ggplot(violin_friends, aes(x=name, y=value, fill=name)) +
+  theme_classic() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x=element_blank()) +
+  ylab("Concern for Privacy for Thomas' Friends") +
+  ylim(1, 5) +
+  geom_violin(show.legend = F)
+  # + geom_boxplot(width = 0.05, alpha = 0.5, show.legend = FALSE)
+```
+
+```{r}
+a <- survey_data %>% 
+  filter(ResponseId %in% c(cn_persons$ResponseId)) %>%
+  mutate(permission = "Contacts")
+
+b <- survey_data %>% 
+  filter(ResponseId %in% c(ph_persons$ResponseId)) %>%
+  mutate(permission = "Photos")
+
+c <- survey_data %>% 
+  filter(ResponseId %in% c(cl_persons$ResponseId)) %>%
+  mutate(permission = "Calendar")
+
+d <- survey_data %>% 
+  filter(ResponseId %in% c(file_persons$ResponseId)) %>%
+  mutate(permission = "File System")
+
+persons_himself <- bind_rows(a, b, c, d) %>% 
+  select(permission, thomashimself_1, thomashimself_2, thomashimself_3)
+persons_himself$group_var <- factor(rep('Persons Himself', 
+                                            nrow(persons_himself)))
+persons_himself <- persons_himself %>%
+  mutate(
+    thomashimself_1 = as.integer(thomashimself_1),
+    thomashimself_2 = as.integer(thomashimself_2),
+    thomashimself_3 = as.integer(thomashimself_3)
+  )
+names(persons_himself) <-  c('permission', 'question1', 'question2', 'question3', 'group')
+
+persons_friends <- bind_rows(a, b, c, d) %>% 
+  select(permission, thomasfriend_1, thomasfriend_2, thomasfriend_3)
+persons_friends$group_var <- factor(rep('Persons Friends', 
+                                            nrow(persons_friends)))
+persons_friends <- persons_friends %>%
+  mutate(
+    thomasfriend_1 = as.integer(thomasfriend_1),
+    thomasfriend_2 = as.integer(thomasfriend_2),
+    thomasfriend_3 = as.integer(thomasfriend_3)
+  )
+names(persons_friends) <- c('permission', 'question1', 'question2', 'question3', 'group')
+
+persons <- bind_rows(persons_himself, persons_friends)
+
+manova_result_persons <- aov(cbind(question1, question2, question3) ~ group, 
+                         data = as_tibble(persons))
+summary(manova_result_persons)
+```
+```{r}
+a <- survey_data %>% 
+  filter(ResponseId %in% c(cn_non_persons$ResponseId)) %>%
+  mutate(permission = "Contacts")
+
+b <- survey_data %>% 
+  filter(ResponseId %in% c(ph_non_persons$ResponseId)) %>%
+  mutate(permission = "Photos")
+
+c <- survey_data %>% 
+  filter(ResponseId %in% c(cl_non_persons$ResponseId)) %>%
+  mutate(permission = "Calendar")
+
+d <- survey_data %>% 
+  filter(ResponseId %in% c(file_non_persons$ResponseId)) %>%
+  mutate(permission = "File System")
+
+non_persons_himself <- bind_rows(a, b, c, d) %>% 
+  select(permission, thomashimself_1, thomashimself_2, thomashimself_3)
+non_persons_himself$group_var <- factor(rep('Non-Persons Himself', 
+                                            nrow(non_persons_himself)))
+non_persons_himself <- non_persons_himself %>%
+  mutate(
+    thomashimself_1 = as.integer(thomashimself_1),
+    thomashimself_2 = as.integer(thomashimself_2),
+    thomashimself_3 = as.integer(thomashimself_3)
+  )
+names(non_persons_himself) <-  c('permission', 'question1', 'question2', 'question3', 'group')
+
+non_persons_friends <- bind_rows(a, b, c, d) %>% 
+  select(permission, thomasfriend_1, thomasfriend_2, thomasfriend_3)
+non_persons_friends$group_var <- factor(rep('Non-Persons Friends', 
+                                            nrow(non_persons_friends)))
+non_persons_friends <- non_persons_friends %>%
+  mutate(
+    thomasfriend_1 = as.integer(thomasfriend_1),
+    thomasfriend_2 = as.integer(thomasfriend_2),
+    thomasfriend_3 = as.integer(thomasfriend_3)
+  )
+names(non_persons_friends) <- c('permission', 'question1', 'question2', 'question3', 'group')
+
+non_persons <- bind_rows(non_persons_himself, non_persons_friends)
+
+manova_result_non <- aov(cbind(question1, question2, question3) ~ group, 
+                         data = as_tibble(non_persons))
+summary(manova_result_non)
+```
+
+```{r}
+persons_himself_means <- persons_himself %>%
+  group_by(permission) %>%
+  summarize(persons_mean_value = round(mean(question1, na.rm = TRUE), 2))
+
+non_persons_himself_means <- non_persons_himself %>%
+  group_by(permission) %>%
+  summarize(non_persons_mean_value = round(mean(question1, na.rm = TRUE), 2))
+
+himself_means <- non_persons_himself_means %>% inner_join(persons_himself_means)
+himself_means
+```
+
+```{r}
+persons_friends_means <- persons_friends %>%
+  group_by(permission) %>%
+  summarize(persons_mean_value = round(mean(question1, na.rm = TRUE), 2))
+
+non_persons_friends_means <- non_persons_friends %>%
+  group_by(permission) %>%
+  summarize(non_persons_mean_value = round(mean(question1, na.rm = TRUE), 2))
+
+friends_means <- non_persons_friends_means %>% inner_join(persons_friends_means)
+friends_means
+```
+
+```{r}
+a <- survey_data %>% 
+  filter(ResponseId %in% c(cn_persons$ResponseId)) %>%
+  mutate(permission = "Contacts",
+         amount = as.numeric(gsub("[^0-9.-]", "", contact_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+b <- survey_data %>% 
+  filter(ResponseId %in% c(ph_persons$ResponseId)) %>%
+  mutate(permission = "Photos",
+         amount = as.numeric(gsub("[^0-9.-]", "", photo_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+c <- survey_data %>% 
+  filter(ResponseId %in% c(cl_persons$ResponseId)) %>%
+  mutate(permission = "Calendar",
+         amount = as.numeric(gsub("[^0-9.-]", "", calendar_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+d <- survey_data %>% 
+  filter(ResponseId %in% c(file_persons$ResponseId)) %>%
+  mutate(permission = "File System",
+         amount = as.numeric(gsub("[^0-9.-]", "", file_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+persons_paid_apps <- bind_rows(a, b, c, d)
+persons_paid_apps_summary <- persons_paid_apps %>%
+  group_by(permission) %>%
+  summarize(persons_mean = round(mean(amount, na.rm = TRUE), 2),
+            persons_median = round(median(amount, na.rm = TRUE), 2))
+persons_paid_apps_summary
+```
+
+```{r}
+a <- survey_data %>% 
+  filter(ResponseId %in% c(cn_non_persons$ResponseId)) %>%
+  mutate(permission = "Contacts",
+         amount = as.numeric(gsub("[^0-9.-]", "", contact_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+b <- survey_data %>% 
+  filter(ResponseId %in% c(ph_non_persons$ResponseId)) %>%
+  mutate(permission = "Photos",
+         amount = as.numeric(gsub("[^0-9.-]", "", photo_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+c <- survey_data %>% 
+  filter(ResponseId %in% c(cl_non_persons$ResponseId)) %>%
+  mutate(permission = "Calendar",
+         amount = as.numeric(gsub("[^0-9.-]", "", calendar_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+d <- survey_data %>% 
+  filter(ResponseId %in% c(file_non_persons$ResponseId)) %>%
+  mutate(permission = "File System",
+         amount = as.numeric(gsub("[^0-9.-]", "", file_paid)),
+         amount = ifelse(is.na(amount), 0, amount)) %>%
+  filter(amount > -1) %>%
+  select(c(permission, amount))
+
+non_persons_paid_apps <- bind_rows(a, b, c, d)
+non_persons_paid_apps_summary <- non_persons_paid_apps %>%
+  group_by(permission) %>%
+  summarize(non_persons_mean = round(mean(amount, na.rm = TRUE), 2),
+            non_persons_median = round(median(amount, na.rm = TRUE), 2))
+non_persons_paid_apps_summary
+```
+
+```{r}
+a <- ph_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+b <- cn_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+c <- cl_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+d <- file_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+shapiro.test(a$question)
+shapiro.test(b$question)
+shapiro.test(c$question)
+# shapiro.test(d$question)
+```
+
+```{r}
+a <- ph_non_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+b <- cn_non_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+c <- cl_non_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+d <- file_non_persons %>%
+  mutate(question = as.numeric(thomasfriend_1)) %>%
+  select(question)
+
+shapiro.test(a$question)
+# shapiro.test(b$question)
+shapiro.test(c$question)
+# shapiro.test(d$question)
+```
+
