@@ -145,8 +145,8 @@ ph_persons <- survey_data %>% select(
     photo_paid
     ),
   common_cols
-) %>% filter(mc1_photosperson == "Mainly photos from family/friends/other people",
-             mc2_photosperson == "Access to Photos")
+) %>% filter(mc1_photosperson != "",
+             mc2_photosperson != "")
 
 dim(ph_persons)
 ```
@@ -162,8 +162,8 @@ ph_non_persons <- survey_data %>% select(
     photo_paid
     ),
   common_cols
-) %>% filter(mc1_photosnon == "Mainly photos from landscapes, animals and cities",
-             mc2_photosnon == "Access to Photos")
+) %>% filter(mc1_photosnon != "",
+             mc2_photosnon != "")
 
 dim(ph_non_persons)
 ```
@@ -179,8 +179,8 @@ cn_persons <- survey_data %>% select(
     contact_paid
     ),
   common_cols
-) %>% filter(mc1_contactspersons == "Mainly family and friends",
-             mc2_contactsperson == "Access to Contacts")
+) %>% filter(mc1_contactspersons != "",
+             mc2_contactsperson != "")
 
 dim(cn_persons)
 ```
@@ -196,8 +196,8 @@ cn_non_persons <- survey_data %>% select(
     contact_paid
     ),
   common_cols
-) %>% filter(mc1_contactnonperson == "Mainly companies and institutions",
-             mc2_contactnonperson == "Access to Contacts")
+) %>% filter(mc1_contactnonperson != "",
+             mc2_contactnonperson != "")
 
 dim(cn_non_persons)
 ```
@@ -213,8 +213,8 @@ cl_persons <- survey_data %>% select(
     calendar_paid
     ),
   common_cols
-) %>% filter(mc1_calendarpersons == "Mainly listings of events (birthdays, parties, holidays, etc.)",
-             mc2_calendarperson == "Access to Calendar")
+) %>% filter(mc1_calendarpersons != "",
+             mc2_calendarperson != "")
 
 dim(cl_persons)
 ```
@@ -230,8 +230,8 @@ cl_non_persons <- survey_data %>% select(
     calendar_paid
     ),
   common_cols
-) %>% filter(mc1_calendarnon == "Mainly listings of lectures",
-             mc2_calendarnon == "Access to Calendar")
+) %>% filter(mc1_calendarnon != "",
+             mc2_calendarnon != "")
 
 dim(cl_non_persons)
 ```
@@ -247,8 +247,8 @@ file_persons <- survey_data %>% select(
     file_paid
     ),
   common_cols
-) %>% filter(filesystempersonchec == "Mainly files from family, friends, and others",
-             filesystempersonperm == "Access to the File System")
+) %>% filter(filesystempersonchec != "",
+             filesystempersonperm != "")
 
 dim(file_persons)
 ```
@@ -264,8 +264,8 @@ file_non_persons <- survey_data %>% select(
     file_paid
     ),
   common_cols
-) %>% filter(qnonpersonfilehave == "Mainly files from lectures notes, landscape images, etc.",
-             qnonpersonfileperm == "Access to the File System")
+) %>% filter(qnonpersonfilehave != "",
+             qnonpersonfileperm != "")
 
 dim(file_non_persons)
 ```
@@ -277,12 +277,13 @@ violin_himself <- data.frame(
   name = c(rep("Calendar - Persons", length(cl_persons$thomashimself_1)),
            rep("Calendar - Non-Persons", length(cl_non_persons$thomashimself_1)),
            rep("Contacts - Persons", length(cn_persons$thomashimself_1)),
+           rep("Contacts - Non-Persons", length(cn_non_persons$thomashimself_1)),
            rep("Photos - Persons", length(ph_persons$thomashimself_1)),
            rep("Photos - Non-Persons", length(ph_non_persons$thomashimself_1)),
            rep("Files - Persons", length(file_persons$thomashimself_1)),
            rep("Files - Non-Persons", length(file_non_persons$thomashimself_1))),
   value = as.integer(c(cl_persons$thomashimself_1, cl_non_persons$thomashimself_1,
-                       cn_persons$thomashimself_1,
+                       cn_persons$thomashimself_1, cn_non_persons$thomashimself_1,
                        ph_persons$thomashimself_1, ph_non_persons$thomashimself_1,
                        file_persons$thomashimself_1, file_non_persons$thomashimself_1))
 )
@@ -305,12 +306,13 @@ violin_friends <- data.frame(
   name = c(rep("Calendar - Persons", length(cl_persons$thomasfriend_1)),
            rep("Calendar - Non-Persons", length(cl_non_persons$thomasfriend_1)),
            rep("Contacts - Persons", length(cn_persons$thomasfriend_1)),
+           rep("Contacts - Non-Persons", length(cn_non_persons$thomasfriend_1)),
            rep("Photos - Persons", length(ph_persons$thomasfriend_1)),
            rep("Photos - Non-Persons", length(ph_non_persons$thomasfriend_1)),
            rep("Files - Persons", length(file_persons$thomasfriend_1)),
            rep("Files - Non-Persons", length(file_non_persons$thomasfriend_1))),
   value = as.integer(c(cl_persons$thomasfriend_1, cl_non_persons$thomasfriend_1,
-                       cn_persons$thomasfriend_1,
+                       cn_persons$thomasfriend_1, cn_non_persons$thomasfriend_1,
                        ph_persons$thomasfriend_1, ph_non_persons$thomasfriend_1,
                        file_persons$thomasfriend_1, file_non_persons$thomasfriend_1))
 )
@@ -372,6 +374,7 @@ manova_result_persons <- aov(cbind(question1, question2, question3) ~ group,
                          data = as_tibble(persons))
 summary(manova_result_persons)
 ```
+
 ```{r}
 a <- survey_data %>% 
   filter(ResponseId %in% c(cn_non_persons$ResponseId)) %>%
@@ -548,7 +551,7 @@ d <- file_persons %>%
 shapiro.test(a$question)
 shapiro.test(b$question)
 shapiro.test(c$question)
-# shapiro.test(d$question)
+shapiro.test(d$question)
 ```
 
 ```{r}
@@ -569,8 +572,87 @@ d <- file_non_persons %>%
   select(question)
 
 shapiro.test(a$question)
-# shapiro.test(b$question)
+shapiro.test(b$question)
 shapiro.test(c$question)
-# shapiro.test(d$question)
+shapiro.test(d$question)
+```
+
+```{r}
+persons_not_sc <- survey_data %>%
+  filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
+          (mc1_photosperson != "" & mc2_photosperson != "") |
+           (mc1_calendarpersons != "" & mc1_calendarpersons != "") |
+           (filesystempersonchec != "" & filesystempersonperm != "")) %>%
+  select(c(not_scenario_1, not_scenario_2, not_scenario_3, not_scenario_4,
+           not_scenario_5, not_scenario_6, not_scenario_7, not_scenario_8))
+
+persons_not_sc <- persons_not_sc %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(persons_not_sc, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(persons_not_sc, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+
+```{r}
+non_persons_not_sc <- survey_data %>%
+  filter((mc1_contactnonperson != "" & mc2_contactnonperson != "") |
+          (mc1_photosnon != "" & mc2_photosnon != "") |
+           (mc1_calendarnon != "" & mc2_calendarnon != "") |
+           (qnonpersonfilehave != "" & qnonpersonfileperm != "")) %>%
+  select(c(not_scenario_1, not_scenario_2, not_scenario_3, not_scenario_4,
+           not_scenario_5, not_scenario_6, not_scenario_7, not_scenario_8))
+
+non_persons_not_sc <- non_persons_not_sc %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(non_persons_not_sc, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(non_persons_not_sc, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+persons_resp <- survey_data %>%
+  filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
+          (mc1_photosperson != "" & mc2_photosperson != "") |
+           (mc1_calendarpersons != "" & mc1_calendarpersons != "") |
+           (filesystempersonchec != "" & filesystempersonperm != "")) %>%
+  select(c('reponsibility_1', 'reponsibility_2'))
+
+persons_resp <- persons_resp %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(persons_resp, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(persons_resp, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+non_persons_resp <- survey_data %>%
+  filter((mc1_contactnonperson != "" & mc2_contactnonperson != "") |
+          (mc1_photosnon != "" & mc2_photosnon != "") |
+           (mc1_calendarnon != "" & mc2_calendarnon != "") |
+           (qnonpersonfilehave != "" & qnonpersonfileperm != "")) %>%
+  select(c('reponsibility_1', 'reponsibility_2'))
+
+non_persons_resp <- non_persons_resp %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(non_persons_resp, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(non_persons_resp, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
 ```
 
