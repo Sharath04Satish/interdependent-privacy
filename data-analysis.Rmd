@@ -622,7 +622,7 @@ median_values
 persons_resp <- survey_data %>%
   filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
           (mc1_photosperson != "" & mc2_photosperson != "") |
-           (mc1_calendarpersons != "" & mc1_calendarpersons != "") |
+           (mc1_calendarpersons != "" & mc2_calendarpersons != "") |
            (filesystempersonchec != "" & filesystempersonperm != "")) %>%
   select(c('reponsibility_1', 'reponsibility_2'))
 
@@ -654,5 +654,169 @@ median_values <- apply(non_persons_resp, 2, median, na.rm = TRUE)
 
 mean_values
 median_values
+```
+
+```{r}
+cn_persons_install <- survey_data %>%
+  filter((mc1_contactspersons != "" & mc2_contactsperson != "")) %>%
+  select(c('contact_option_1', 'contact_option_flip_1'))
+
+cn_persons_install <- cn_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(cn_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(cn_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+cn_non_persons_install <- survey_data %>%
+  filter((mc1_contactnonperson != "" & mc1_contactnonperson != "")) %>%
+  select(c('contact_option_1', 'contact_option_flip_1'))
+
+cn_non_persons_install <- cn_non_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(cn_non_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(cn_non_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+cl_persons_install <- survey_data %>%
+  filter((mc1_calendarpersons != "" & mc2_calendarperson != "")) %>%
+  select(c('calendar_option_1', 'calendar_option_flip_1'))
+
+cl_persons_install <- cl_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(cl_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(cl_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+ph_persons_install <- survey_data %>%
+  filter((mc1_photosperson != "" & mc2_photosperson != "")) %>%
+  select(c('photo_option_1', 'photo_option_flip_1'))
+
+ph_persons_install <- ph_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(ph_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(ph_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+ph_non_persons_install <- survey_data %>%
+  filter(mc1_photosnon != "" & mc2_photosnon != "") %>%
+  select(c('photo_option_1', 'photo_option_flip_1'))
+
+ph_non_persons_install <- ph_non_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(ph_non_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(ph_non_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+file_persons_install <- survey_data %>%
+  filter(filesystempersonchec != "" & filesystempersonperm != "") %>%
+  select(c('file_option_1', 'file_option_flipped_1'))
+
+file_persons_install <- file_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(file_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(file_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+file_non_persons_install <- survey_data %>%
+  filter(qnonpersonfilehave != "" & qnonpersonfileperm != "") %>%
+  select(c('file_option_1', 'file_option_flipped_1'))
+
+file_non_persons_install <- file_non_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(file_non_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(file_non_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+persons_twice <- survey_data %>%
+  filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
+          (mc1_photosperson != "" & mc2_photosperson != "") |
+           (mc1_calendarpersons != "" & mc2_calendarperson != "") |
+           (filesystempersonchec != "" & filesystempersonperm != "")) %>%
+  select(c('personalinformation_2', 'friendinformation_2'))
+
+persons_twice <- persons_twice %>%
+  mutate(across(everything(), as.numeric))
+
+# shapiro.test(persons_twice$personalinformation_2)
+# shapiro.test(persons_twice$friendinformation_2)
+# 
+# wilcox_test_result <- wilcox.test(persons_twice$personalinformation_2, 
+#                                   persons_twice$friendinformation_2, 
+#                                   paired = TRUE)
+# 
+# wilcox_test_result
+
+mean_values <- apply(persons_twice, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(persons_twice, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+non_persons_twice <- survey_data %>%
+  filter((mc1_contactnonperson != "" & mc2_contactnonperson != "") |
+          (mc1_photosnon != "" & mc2_photosnon != "") |
+           (mc1_calendarnon != "" & mc2_calendarnon != "") |
+           (qnonpersonfilehave != "" & qnonpersonfileperm != "")) %>%
+  select(c('personalinformation_2', 'friendinformation_2'))
+
+non_persons_twice <- non_persons_twice %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(non_persons_twice, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(non_persons_twice, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+```{r}
+table(dem_data$gender)
+table(dem_data$ethnicity)
 ```
 
