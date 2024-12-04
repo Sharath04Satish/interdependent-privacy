@@ -705,6 +705,23 @@ median_values
 ```
 
 ```{r}
+cl_non_persons_install <- survey_data %>%
+  filter((mc1_calendarnon != "" & mc2_calendarnon != "")) %>%
+  select(c('calendar_option_1', 'calendar_option_flip_1'))
+
+cl_non_persons_install <- cl_non_persons_install %>%
+  mutate(across(everything(), as.numeric))
+
+mean_values <- apply(cl_non_persons_install, 2, 
+                     function(x) round(mean(x, na.rm = TRUE), 2))
+median_values <- apply(cl_non_persons_install, 2, median, na.rm = TRUE)
+
+mean_values
+median_values
+```
+
+
+```{r}
 ph_persons_install <- survey_data %>%
   filter((mc1_photosperson != "" & mc2_photosperson != "")) %>%
   select(c('photo_option_1', 'photo_option_flip_1'))
