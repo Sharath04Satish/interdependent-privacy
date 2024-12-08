@@ -69,7 +69,25 @@ common_cols <- c(
     'friendinformation_1',
     'friendinformation_2',
     'friendinformation_3',
-    'friendinformation_4'
+    'friendinformation_4',
+    'gender',
+    'ethnicity',
+    'education',
+    'education_9_TEXT',
+    'income',
+    'usyears',
+    'yob_1',
+    'fieldofstudy',
+    'relationshipstatus',
+    'children',
+    'commitmentcheck1',
+    'commitmentcheck2',
+    'feedback1',
+    'feedback2',
+    'feedback4',
+    'feedback5',
+    'feedback6',
+    'feedback7'
 )
 
 survey_data <- my_data %>% select(
@@ -104,34 +122,12 @@ survey_data <- my_data %>% select(
     photo_paid,
     contact_paid,
     calendar_paid,
-    file_paid,
+    file_paid
     ),
   common_cols
 )
 
-dem_data <- my_data %>% select(
-  c(gender,
-    ethnicity,
-    education,
-    education_9_TEXT,
-    income,
-    usyears,
-    yob_1,
-    fieldofstudy,
-    relationshipstatus,
-    children,
-    commitmentcheck1,
-    commitmentcheck2,
-    feedback1,
-    feedback2,
-    feedback4,
-    feedback5,
-    feedback6,
-    feedback7,)
-)
-
 dim(survey_data)
-dim(dem_data)
 ```
 
 Scenario 1 - Photos Persons (5, 4 (correct) participants)
@@ -581,7 +577,7 @@ shapiro.test(d$question)
 persons_not_sc <- survey_data %>%
   filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
           (mc1_photosperson != "" & mc2_photosperson != "") |
-           (mc1_calendarpersons != "" & mc1_calendarpersons != "") |
+           (mc1_calendarpersons != "" & mc2_calendarperson != "") |
            (filesystempersonchec != "" & filesystempersonperm != "")) %>%
   select(c(not_scenario_1, not_scenario_2, not_scenario_3, not_scenario_4,
            not_scenario_5, not_scenario_6, not_scenario_7, not_scenario_8))
@@ -597,6 +593,65 @@ mean_values
 median_values
 ```
 
+```{r}
+a <- persons_not_sc %>% 
+  select(not_scenario_1) %>%
+  mutate(permission = "Calendar")
+b <- persons_not_sc %>% 
+  select(not_scenario_2) %>%
+  mutate(permission = "Contacts")
+c <- persons_not_sc %>% 
+  select(not_scenario_3) %>%
+  mutate(permission = "Photos")
+d <- persons_not_sc %>% 
+  select(not_scenario_4) %>%
+  mutate(permission = "File System")
+
+persons_not_sc_t <- bind_rows(a, b, c, d)
+persons_not_sc_t$group_var <- factor(rep('Persons - Privacy Concern', 
+                                            nrow(persons_not_sc_t)))
+
+persons_not_sc_t <- persons_not_sc_t %>%
+  pivot_longer(cols = c("not_scenario_1", "not_scenario_2", "not_scenario_3", "not_scenario_4"),
+               names_to = "option_type",
+               values_to = "concern_score",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_persons_not_sc_t <- aov(concern_score ~ permission, 
+                         data = as_tibble(persons_not_sc_t))
+summary(manova_result_persons_not_sc_t)
+```
+
+```{r}
+a <- persons_not_sc %>% 
+  select(not_scenario_5) %>%
+  mutate(permission = "Calendar")
+b <- persons_not_sc %>% 
+  select(not_scenario_6) %>%
+  mutate(permission = "Contacts")
+c <- persons_not_sc %>% 
+  select(not_scenario_7) %>%
+  mutate(permission = "Photos")
+d <- persons_not_sc %>% 
+  select(not_scenario_8) %>%
+  mutate(permission = "File System")
+
+persons_not_sc_t <- bind_rows(a, b, c, d)
+persons_not_sc_t$group_var <- factor(rep('Persons - Access Comfort', 
+                                            nrow(persons_not_sc_t)))
+
+persons_not_sc_t <- persons_not_sc_t %>%
+  pivot_longer(cols = c("not_scenario_5", "not_scenario_6", "not_scenario_7", "not_scenario_8"),
+               names_to = "option_type",
+               values_to = "comfort_score",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_persons_not_sc_t <- aov(comfort_score ~ permission, 
+                         data = as_tibble(persons_not_sc_t))
+summary(manova_result_persons_not_sc_t)
+```
 
 ```{r}
 non_persons_not_sc <- survey_data %>%
@@ -619,10 +674,75 @@ median_values
 ```
 
 ```{r}
+a <- non_persons_not_sc %>% 
+  select(not_scenario_1) %>%
+  mutate(permission = "Calendar")
+b <- non_persons_not_sc %>% 
+  select(not_scenario_2) %>%
+  mutate(permission = "Contacts")
+c <- non_persons_not_sc %>% 
+  select(not_scenario_3) %>%
+  mutate(permission = "Photos")
+d <- non_persons_not_sc %>% 
+  select(not_scenario_4) %>%
+  mutate(permission = "File System")
+
+non_persons_not_sc_t <- bind_rows(a, b, c, d)
+non_persons_not_sc_t$group_var <- factor(rep('Non-Persons - Privacy Concern', 
+                                            nrow(persons_not_sc_t)))
+
+non_persons_not_sc_t <- non_persons_not_sc_t %>%
+  pivot_longer(cols = c("not_scenario_1", "not_scenario_2", "not_scenario_3", "not_scenario_4"),
+               names_to = "option_type",
+               values_to = "concern_score",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_non_persons_not_sc_t <- aov(concern_score ~ permission, 
+                         data = as_tibble(non_persons_not_sc_t))
+summary(manova_result_non_persons_not_sc_t)
+```
+
+```{r}
+```
+
+
+```{r}
+a <- non_persons_not_sc %>% 
+  select(not_scenario_5) %>%
+  mutate(permission = "Calendar")
+b <- non_persons_not_sc %>% 
+  select(not_scenario_6) %>%
+  mutate(permission = "Contacts")
+c <- non_persons_not_sc %>% 
+  select(not_scenario_7) %>%
+  mutate(permission = "Photos")
+d <- non_persons_not_sc %>% 
+  select(not_scenario_8) %>%
+  mutate(permission = "File System")
+
+non_persons_not_sc_t <- bind_rows(a, b, c, d)
+non_persons_not_sc_t$group_var <- factor(rep('Persons - Access Comfort', 
+                                            nrow(non_persons_not_sc_t)))
+
+non_persons_not_sc_t <- non_persons_not_sc_t %>%
+  pivot_longer(cols = c("not_scenario_5", "not_scenario_6", "not_scenario_7", "not_scenario_8"),
+               names_to = "option_type",
+               values_to = "comfort_score",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_non_persons_not_sc_t <- aov(comfort_score ~ permission, 
+                         data = as_tibble(non_persons_not_sc_t))
+summary(manova_result_non_persons_not_sc_t)
+```
+
+
+```{r}
 persons_resp <- survey_data %>%
   filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
           (mc1_photosperson != "" & mc2_photosperson != "") |
-           (mc1_calendarpersons != "" & mc2_calendarpersons != "") |
+           (mc1_calendarpersons != "" & mc2_calendarperson != "") |
            (filesystempersonchec != "" & filesystempersonperm != "")) %>%
   select(c('reponsibility_1', 'reponsibility_2'))
 
@@ -786,6 +906,115 @@ median_values
 ```
 
 ```{r}
+a <- cn_persons_install %>% 
+  select(contact_option_1) %>%
+  mutate(permission = "Contacts")
+
+b <- cl_persons_install %>% 
+  select(calendar_option_1) %>%
+  mutate(permission = "Calendar")
+
+c <- ph_persons_install %>% 
+  select(photo_option_1) %>%
+  mutate(permission = "Photos")
+
+d <- file_persons_install %>% 
+  select(file_option_1) %>%
+  mutate(permission = "File Systems")
+
+persons_install_intent <- bind_rows(a, b, c, d)
+persons_install_intent$group_var <- factor(rep('Persons Install Intent', 
+                                            nrow(persons_install_intent)))
+
+a <- cn_non_persons_install %>% 
+  select(contact_option_1) %>%
+  mutate(permission = "Contacts")
+
+b <- cl_non_persons_install %>% 
+  select(calendar_option_1) %>%
+  mutate(permission = "Calendar")
+
+c <- ph_non_persons_install %>% 
+  select(photo_option_1) %>%
+  mutate(permission = "Photos")
+
+d <- file_non_persons_install %>% 
+  select(file_option_1) %>%
+  mutate(permission = "File Systems")
+
+non_persons_install_intent <- bind_rows(a, b, c, d)
+non_persons_install_intent$group_var <- factor(rep('Non-Persons Install Intent', 
+                                            nrow(non_persons_install_intent)))
+
+install_intent <- bind_rows(persons_install_intent, non_persons_install_intent)
+install_intent <- install_intent %>%
+  pivot_longer(cols = c("contact_option_1", "calendar_option_1", "photo_option_1", "file_option_1"),
+               names_to = "option_type",
+               values_to = "intent",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_persons_install <- aov(intent ~ group_var, 
+                         data = as_tibble(install_intent))
+summary(manova_result_persons_install)
+```
+
+```{r}
+a <- cn_persons_install %>% 
+  select(contact_option_flip_1) %>%
+  mutate(permission = "Contacts")
+
+b <- cl_persons_install %>% 
+  select(calendar_option_flip_1) %>%
+  mutate(permission = "Calendar")
+
+c <- ph_persons_install %>% 
+  select(photo_option_flip_1) %>%
+  mutate(permission = "Photos")
+
+d <- file_persons_install %>% 
+  select(file_option_flipped_1) %>%
+  mutate(permission = "File Systems")
+
+friend_persons_install_intent <- bind_rows(a, b, c, d)
+friend_persons_install_intent$group_var <- factor(rep('Persons Install Intent', 
+                                            nrow(friend_persons_install_intent)))
+
+a <- cn_non_persons_install %>% 
+  select(contact_option_flip_1) %>%
+  mutate(permission = "Contacts")
+
+b <- cl_non_persons_install %>% 
+  select(calendar_option_flip_1) %>%
+  mutate(permission = "Calendar")
+
+c <- ph_non_persons_install %>% 
+  select(photo_option_flip_1) %>%
+  mutate(permission = "Photos")
+
+d <- file_non_persons_install %>% 
+  select(file_option_flipped_1) %>%
+  mutate(permission = "File Systems")
+
+friend_non_persons_install_intent <- bind_rows(a, b, c, d)
+friend_non_persons_install_intent$group_var <- factor(rep('Non-Persons Install Intent', 
+                                            nrow(friend_non_persons_install_intent)))
+
+friend_install_intent <- bind_rows(friend_persons_install_intent, friend_non_persons_install_intent)
+friend_install_intent <- friend_install_intent %>%
+  pivot_longer(cols = c("contact_option_flip_1", "calendar_option_flip_1", "photo_option_flip_1", "file_option_flipped_1"),
+               names_to = "option_type",
+               values_to = "intent",      
+               values_drop_na = TRUE) %>% select(-c(option_type))
+
+
+manova_result_friend_persons_install <- aov(intent ~ permission, 
+                         data = as_tibble(friend_install_intent))
+summary(manova_result_friend_persons_install)
+```
+
+
+```{r}
 persons_twice <- survey_data %>%
   filter((mc1_contactspersons != "" & mc2_contactsperson != "") |
           (mc1_photosperson != "" & mc2_photosperson != "") |
@@ -833,7 +1062,37 @@ median_values
 ```
 
 ```{r}
-table(dem_data$gender)
-table(dem_data$ethnicity)
+concern_by_gender <- survey_data %>%
+  select(c(thomashimself_1, gender))
+
+concern_by_gender <- concern_by_gender %>%
+  mutate(thomashimself_1 = as.numeric(thomashimself_1))
+
+summary_stats <- concern_by_gender %>%
+  group_by(gender) %>%
+  summarize(
+    mean_score = mean(thomashimself_1, na.rm = TRUE), 
+    median_score = median(thomashimself_1, na.rm = TRUE)  
+  )
+
+summary_stats
+```
+
+```{r}
+concern_by_ethnicity <- survey_data %>%
+  select(c(thomashimself_1, ethnicity))
+
+concern_by_ethnicity <- concern_by_ethnicity %>%
+  mutate(thomashimself_1 = as.numeric(thomashimself_1))
+
+summary_stats <- concern_by_ethnicity %>%
+  group_by(ethnicity) %>%
+  summarize(
+    mean_score = mean(thomashimself_1, na.rm = TRUE), 
+    median_score = median(thomashimself_1, na.rm = TRUE)  
+  ) %>%
+  arrange(desc(mean_score))
+
+summary_stats
 ```
 
