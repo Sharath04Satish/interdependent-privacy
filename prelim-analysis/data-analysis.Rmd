@@ -290,7 +290,7 @@ ggplot(violin_himself, aes(x=name, y=value, fill=name)) +
         axis.ticks.x=element_blank()) +
   ylab("Concern for Thomas' Privacy") +
   ylim(1, 5) +
-  geom_violin(show.legend = F)
+  geom_violin(show.legend = F) 
   # + geom_boxplot(width = 0.05, alpha = 0.5, show.legend = FALSE)
 ```
 
@@ -1079,6 +1079,24 @@ summary_stats
 ```
 
 ```{r}
+concern_by_gender <- survey_data %>%
+  select(c(thomasfriend_1, gender))
+
+concern_by_gender <- concern_by_gender %>%
+  mutate(thomasfriend_1 = as.numeric(thomasfriend_1))
+
+summary_stats <- concern_by_gender %>%
+  group_by(gender) %>%
+  summarize(
+    mean_score = mean(thomasfriend_1, na.rm = TRUE), 
+    median_score = median(thomasfriend_1, na.rm = TRUE)  
+  )
+
+summary_stats
+```
+
+
+```{r}
 concern_by_ethnicity <- survey_data %>%
   select(c(thomashimself_1, ethnicity))
 
@@ -1092,6 +1110,89 @@ summary_stats <- concern_by_ethnicity %>%
     median_score = median(thomashimself_1, na.rm = TRUE)  
   ) %>%
   arrange(desc(mean_score))
+
+summary_stats
+```
+
+```{r}
+concern_by_os <- survey_data %>%
+  select(c(thomasfriend_1, phoneos))
+
+concern_by_os <- concern_by_os %>%
+  mutate(thomasfriend_1 = as.numeric(thomasfriend_1))
+
+summary_stats <- concern_by_os %>%
+  group_by(phoneos) %>%
+  summarize(
+    mean_score = mean(thomasfriend_1, na.rm = TRUE), 
+    median_score = median(thomasfriend_1, na.rm = TRUE)  
+  )
+
+summary_stats
+```
+
+```{r}
+concern_by_os <- survey_data %>%
+  select(c(thomashimself_1, phoneos))
+
+concern_by_os <- concern_by_os %>%
+  mutate(thomashimself_1 = as.numeric(thomashimself_1))
+
+summary_stats <- concern_by_os %>%
+  group_by(phoneos) %>%
+  summarize(
+    mean_score = mean(thomashimself_1, na.rm = TRUE), 
+    median_score = median(thomashimself_1, na.rm = TRUE)  
+  )
+
+summary_stats
+```
+
+```{r}
+# apps_number, photos_number, contact_number, familyevent_number, workevent_number
+
+app_count <- survey_data %>%
+  select(c(apps_number, gender))
+
+app_count <- app_count %>%
+  mutate(apps_number = as.numeric(apps_number))
+
+summary_stats <- app_count %>%
+  group_by(gender) %>%
+  summarize(
+    mean_score = mean(apps_number, na.rm = TRUE), 
+    median_score = median(apps_number, na.rm = TRUE)  
+  )
+
+summary_stats
+
+photo_count <- survey_data %>%
+  select(c(photos_number, gender))
+
+photo_count <- photo_count %>%
+  mutate(photos_number = as.numeric(photos_number))
+
+summary_stats <- photo_count %>%
+  group_by(gender) %>%
+  summarize(
+    mean_score = mean(photos_number, na.rm = TRUE), 
+    median_score = median(photos_number, na.rm = TRUE)  
+  )
+
+summary_stats
+
+cal_count <- survey_data %>%
+  select(c(familyevent_number, gender))
+
+cal_count <- cal_count %>%
+  mutate(familyevent_number = as.numeric(familyevent_number))
+
+summary_stats <- cal_count %>%
+  group_by(gender) %>%
+  summarize(
+    mean_score = mean(familyevent_number, na.rm = TRUE), 
+    median_score = median(familyevent_number, na.rm = TRUE)  
+  )
 
 summary_stats
 ```
