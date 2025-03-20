@@ -18,13 +18,13 @@ ip_addrs = df["IPAddress"].to_list()[2:]
 res = ["IP Address Flag", ""]
 for addr in tqdm(ip_addrs):
     if is_ip_addr_from_usa(addr):
-        res.append(True)
-    else:
         res.append(False)
+    else:
+        res.append(True)
 
 if "IpAddressFlag" in df.columns:
     df = df.drop(columns=["IPAddressFlag"])
 df["IpAddressFlag"] = res
 
-df.to_csv("../datasets/dataset_2025_03_17_ip.csv", index=False)
+df.to_csv("../datasets/dataset_ip_addr_flag.csv", index=False)
 print("Extraction completed.")
